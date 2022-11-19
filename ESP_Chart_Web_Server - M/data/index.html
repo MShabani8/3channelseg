@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" media="all" href="css/reset.css" /> <!-- reset css -->
+<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+<style>
+  body {
+    min-width: 310px;
+    max-width: 800px;
+    height: 400px;
+    margin: 0 auto;
+  }
+  h2 {
+    font-family: Arial;
+    font-size: 2.5rem;
+    text-align: center;
+  }
+  #canvas{border:1px solid ivory;}
+</style>
+
+<script>
+$(function(){
+    var canvas=document.getElementById("canvas");
+    var ctx=canvas.getContext("2d");
+
+    // capture incoming socket data in an array
+    var data=[];
+
+    // TESTING: fill data with some test values
+    
+    for(var i=0;i<5000;i++){
+     
+       var x= Math.random()*170;
+    
+        data.push(x);
+    }
+
+    // x is your most recent data-point in data[]
+    var x=0;
+
+    // panAtX is how far the plot will go rightward on the canvas
+    // until the canvas is panned
+
+    var panAtX=400;
+
+    var continueAnimation=true;
+    animate();
+
+
+    function animate(){
+      var delayInMilliseconds = 1000; 
+       setTimeout(function() {
+        var xhttp = new XMLHttpRequest()
+        ctx.fillStyle = 'green';
+
+        if(x>data.length-1){return;}
+
+        if(continueAnimation){
+            requestAnimationFrame(animate);
+        }
+
+        if(x++<panAtX){
+          ctx.beginPath();       // Start a new path
+          ctx.moveTo(x, data[x]);  
+          ctx.lineTo(x+1, data[x+1]);  
+          ctx.stroke();        
+        }else{
+            console.log('if2')
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+
+            // plot data[] from x-PanAtX to x 
+
+            for(var xx=0;xx<panAtX;xx++){             
+                var y1=data[x-panAtX+xx]; 
+                var y2=data[x-panAtX+xx+1];               
+                ctx.beginPath();       // Start a new path
+                ctx.moveTo(x, data[x]);    
+                ctx.lineTo(x+1, data[x+1]);  
+                ctx.stroke();   
+            }
+        }
+      }, delayInMilliseconds);
+    }
+    ctx.scale(2, 2);
+}); 
+</script>
+
+<body>
+  <h2>ESP8266 Server</h2>
+  <canvas id="canvas" width=800 height=400></canvas>
+  <h2>ESP8266 Client</h2>
+  <div id="chart2" class="container"></div>
+</body>
+
+</html>

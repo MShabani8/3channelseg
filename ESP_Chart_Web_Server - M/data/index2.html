@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" media="all" href="css/reset.css" /> <!-- reset css -->
+<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+
+<style>
+    body{ background-color: white; }
+    #canvas{border:1px solid ivory;}
+</style>
+
+<script>
+$(function(){
+    var canvas=document.getElementById("canvas");
+    var ctx=canvas.getContext("2d");
+
+    // capture incoming socket data in an array
+    var data=[];
+
+    // TESTING: fill data with some test values
+    
+    for(var i=0;i<5000;i++){
+     
+       var x= Math.random()*170;
+    
+        data.push(x);
+    }
+
+    // x is your most recent data-point in data[]
+    var x=0;
+
+    // panAtX is how far the plot will go rightward on the canvas
+    // until the canvas is panned
+
+    var panAtX=400;
+
+    var continueAnimation=true;
+    animate();
+
+
+    function animate(){
+        var xhttp = new XMLHttpRequest()
+        ctx.fillStyle = 'green';
+
+        if(x>data.length-1){return;}
+
+        if(continueAnimation){
+            requestAnimationFrame(animate);
+        }
+
+        if(x++<panAtX){
+            console.log('if1')
+            xhttp.open('GET', '/H', true)
+            xhttp.send()
+            xhttp.onreadystatechange = function () {
+              console.log(parseFloat(this.responseText))
+              ctx.beginPath();       // Start a new path
+              ctx.moveTo(x, temp);    // Move the pen to (30, 50)
+              ctx.lineTo(x, parseFloat(this.responseText));  // Draw a line to (150, 100)
+              ctx.stroke(); 
+              temp = parseFloat(this.responseText);
+             
+            }
+        }else{
+            console.log('if2')
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+
+            // plot data[] from x-PanAtX to x 
+
+            for(var xx=0;xx<panAtX;xx++){             
+                var y1=data[x-panAtX+xx]; 
+                var y2=data[x-panAtX+xx+1];               
+                ctx.beginPath();       // Start a new path
+                ctx.moveTo(xx, y1);    
+                ctx.lineTo(xx+1, y2);  
+                ctx.stroke();   
+            }
+        }
+      
+    }
+    ctx.scale(2, 2);
+}); 
+</script>
+
+</head>
+
+<body>
+    <canvas id="canvas" width=800 height=400></canvas>
+</body>
+</html>
